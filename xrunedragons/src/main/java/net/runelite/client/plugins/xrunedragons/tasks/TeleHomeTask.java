@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ItemID;
 import net.runelite.api.Skill;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.plugins.xrunedragons.Task;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
@@ -13,14 +14,15 @@ public class TeleHomeTask extends Task {
 
     @Override
     public boolean validate() {
-        if (inventory.containsItem(ItemID.TELEPORT_TO_HOUSE)) {
+        if(inventory.containsItem(ItemID.TELEPORT_TO_HOUSE)) {
             if (!atPOH()) {
                 if (atDragons()) {
                     if (shouldRestock(true)) {
-                        log.info("We teleport home from dragons.");
                         return true;
                     }
-                    return client.getBoostedSkillLevel(Skill.HITPOINTS) <= XRuneDragonsPlugin.taskConfig.eatMin() && !inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID());
+                    if (client.getBoostedSkillLevel(Skill.HITPOINTS) <= XRuneDragonsPlugin.taskConfig.eatMin() && !inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID())) {
+                        return true;
+                    }
                 }
                 if (atEdge()) {
                     if (!shouldRestock(false)) {
@@ -30,7 +32,9 @@ public class TeleHomeTask extends Task {
                 if (!atEdge() && shouldRestock(false)) {
                     return true;
                 }
-                return !atDragons() && !atEdge() && !atLith();
+                if (!atDragons() && !atEdge() && !atLith()) {
+                    return true;
+                }
             }
         }
         return false;
@@ -48,10 +52,10 @@ public class TeleHomeTask extends Task {
             started = true;
             useItem(teleItem);
             log.debug("Teleporting home");
-            XRuneDragonsPlugin.deposited = false;
+            XRuneDragonsPlugin.deposited = true;
         }
         log.debug("Can't teleport home");
-        XRuneDragonsPlugin.deposited = false;
+        XRuneDragonsPlugin.deposited = true;
     }
 
     @Override

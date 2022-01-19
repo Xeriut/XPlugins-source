@@ -14,7 +14,9 @@ public class TeleEdgeTask extends Task {
     @Override
     public boolean validate() {
         if (atPOH()) {
-            return shouldRestock(false);
+            if(shouldRestock(false)) {
+                return true;
+            }
         }
         return false;
     }

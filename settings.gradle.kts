@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-rootProject.name = "Xplugins"
+rootProject.name = "OpenOSRS Plugins"
 
 include("xrunedragons")
 

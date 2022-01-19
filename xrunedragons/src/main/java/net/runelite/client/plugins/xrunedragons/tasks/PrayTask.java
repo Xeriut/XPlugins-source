@@ -11,9 +11,12 @@ public class PrayTask extends Task {
     @Override
     public boolean validate() {
         if (atDragons() && !prayerUtils.isQuickPrayerActive()) {
+                return true;
+        }
+        if (!atDragons() && prayerUtils.isQuickPrayerActive()) {
             return true;
         }
-        return !atDragons() && prayerUtils.isQuickPrayerActive();
+        return false;
     }
 
     @Override

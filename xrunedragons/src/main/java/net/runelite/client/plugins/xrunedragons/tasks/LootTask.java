@@ -2,6 +2,7 @@ package net.runelite.client.plugins.xrunedragons.tasks;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.MenuAction;
+import net.runelite.api.NPC;
 import net.runelite.api.TileItem;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.plugins.iutils.LegacyMenuEntry;
@@ -15,7 +16,10 @@ public class LootTask extends Task {
 
     @Override
     public boolean validate() {
-        return atDragons() && !XRuneDragonsPlugin.itemsToLoot.isEmpty() && !inventory.isFull();
+        if (atDragons() && !XRuneDragonsPlugin.itemsToLoot.isEmpty() && !inventory.isFull()) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -26,7 +30,7 @@ public class LootTask extends Task {
     @Override
     public void onGameTick(GameTick event) {
         started = true;
-        lootItem(XRuneDragonsPlugin.itemsToLoot.get(0));
+        lootItem(XRuneDragonsPlugin.itemsToLoot);
         XRuneDragonsPlugin.timeout = tickDelay();
         finished = true;
     }
@@ -46,20 +50,13 @@ public class LootTask extends Task {
     }
 
 
-    private void lootItem(TileItem lootItem) {
-        log.info("We start looting");
+    private void lootItem(List<TileItem> itemList) {
+        TileItem lootItem = getNearestTileItem(itemList);
         if (lootItem != null) {
-            log.info("Loot Item is not null " + lootItem.getTile());
             entry = new LegacyMenuEntry("", "", lootItem.getId(), MenuAction.GROUND_ITEM_THIRD_OPTION.getId(),
                     lootItem.getTile().getSceneLocation().getX(), lootItem.getTile().getSceneLocation().getY(), false);
             menu.setEntry(entry);
             mouse.delayMouseClick(lootItem.getTile().getItemLayer().getCanvasTilePoly().getBounds(), sleepDelay());
-            log.info("Loot Item price getting");
-            int itemPrice = utils.getItemPrice(lootItem.getId(), true) * lootItem.getQuantity();
-            if (itemPrice > 0) {
-                log.info("Loot Item price not null");
-                XRuneDragonsPlugin.updateLoot(itemPrice);
-            }
         }
         XRuneDragonsPlugin.timeout = tickDelay();
     }

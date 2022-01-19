@@ -2,8 +2,8 @@ package net.runelite.client.plugins.xrunedragons.tasks;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.GameObject;
-import net.runelite.api.MenuAction;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.MenuAction;
 import net.runelite.client.plugins.xrunedragons.Task;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
 
@@ -12,7 +12,10 @@ public class EnterDragonsTask extends Task {
 
     @Override
     public boolean validate() {
-        return XRuneDragonsPlugin.localPlayer.getWorldArea().intersectsWith(lithkrenNextToDoor);
+        if (XRuneDragonsPlugin.localPlayer.getWorldArea().intersectsWith(lithkrenNextToDoor)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

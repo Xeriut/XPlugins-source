@@ -13,10 +13,12 @@ public class InCombatTask extends Task {
     public boolean validate() {
         if (atDragons()) {
             if (XRuneDragonsPlugin.localPlayer.getInteracting() != null) {
-                if (XRuneDragonsPlugin.currentNPC == XRuneDragonsPlugin.localPlayer.getInteracting()) {
+                if(XRuneDragonsPlugin.currentNPC == (NPC) XRuneDragonsPlugin.localPlayer.getInteracting()) {
                     return true;
                 }
-                return XRuneDragonsPlugin.currentNPC != null;
+            }
+            if (XRuneDragonsPlugin.currentNPC != null) {
+                return true;
             }
         }
         return false;

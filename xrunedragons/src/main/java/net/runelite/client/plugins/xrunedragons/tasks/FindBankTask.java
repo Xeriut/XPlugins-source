@@ -2,6 +2,7 @@ package net.runelite.client.plugins.xrunedragons.tasks;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.GameObject;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.plugins.iutils.LegacyMenuEntry;
 import net.runelite.client.plugins.xrunedragons.Task;
@@ -13,7 +14,9 @@ public class FindBankTask extends Task {
     @Override
     public boolean validate() {
         if (atEdge()) {
-            return shouldRestock(false);
+            if (shouldRestock(false)) {
+                return true;
+            }
         }
         return false;
     }
@@ -28,10 +31,13 @@ public class FindBankTask extends Task {
         started = true;
         GameObject bankTarget = object.findNearestBank();
         if (bankTarget != null) {
+            utils.sendGameMessage("Bank is found");
             entry = new LegacyMenuEntry("", "", bankTarget.getId(),
                     bank.getBankMenuOpcode(bankTarget.getId()), bankTarget.getSceneMinLocation().getX(),
                     bankTarget.getSceneMinLocation().getY(), false);
             utils.doActionMsTime(entry, bankTarget.getConvexHull().getBounds(), sleepDelay());
+        } else {
+            utils.sendGameMessage("Bank not found, stopping");
         }
     }
 

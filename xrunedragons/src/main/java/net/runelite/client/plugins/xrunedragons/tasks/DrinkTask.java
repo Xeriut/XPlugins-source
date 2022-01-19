@@ -2,9 +2,9 @@ package net.runelite.client.plugins.xrunedragons.tasks;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Skill;
-import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.plugins.xrunedragons.Task;
+import net.runelite.api.events.GameTick;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
 
 @Slf4j
@@ -12,7 +12,7 @@ public class DrinkTask extends Task {
 
     @Override
     public boolean validate() {
-        if (atDragons()) {
+        if(atDragons()) {
             if (client.getBoostedSkillLevel(Skill.PRAYER) <= XRuneDragonsPlugin.taskConfig.prayerMin()) {
                 return true;
             }
@@ -20,12 +20,12 @@ public class DrinkTask extends Task {
                 return true;
             }
             if (XRuneDragonsPlugin.taskConfig.superantifire() && client.getVarbitValue(6101) == 0) {
-                if (inventory.containsItem(SUPER_EXTENDED_ANTIFIRE_POTS)) {
+                if(inventory.containsItem(SUPER_EXTENDED_ANTIFIRE_POTS)) {
                     return true;
                 }
             }
             if (!XRuneDragonsPlugin.taskConfig.superantifire() && client.getVarbitValue(3981) == 0) {
-                if (inventory.containsItem(EXTENDED_ANTIFIRE_POTS)) {
+                if(inventory.containsItem(EXTENDED_ANTIFIRE_POTS)) {
                     return true;
                 }
             }
@@ -37,7 +37,9 @@ public class DrinkTask extends Task {
             if (XRuneDragonsPlugin.taskConfig.superantifire() && client.getVarbitValue(6101) == 0) {
                 return true;
             }
-            return !XRuneDragonsPlugin.taskConfig.superantifire() && client.getVarbitValue(3981) == 0;
+            if (!XRuneDragonsPlugin.taskConfig.superantifire() && client.getVarbitValue(3981) == 0) {
+                return true;
+            }
         }
         return false;
     }
@@ -49,7 +51,7 @@ public class DrinkTask extends Task {
 
     @Override
     public void onGameTick(GameTick event) {
-        if (atDragons()) {
+        if(atDragons()) {
             if (client.getBoostedSkillLevel(Skill.PRAYER) <= XRuneDragonsPlugin.taskConfig.prayerMin()) {
                 WidgetItem prayerItem = inventory.getWidgetItem(PRAYER_POTS);
                 if (prayerItem != null) {

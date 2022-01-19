@@ -2,20 +2,23 @@ package net.runelite.client.plugins.xrunedragons;
 
 import net.runelite.client.config.*;
 
-@ConfigGroup(value = "xruned")
+@ConfigGroup(value = "mruned")
 public interface XRuneDragonsConfig
         extends Config {
 
-    @ConfigSection(keyName = "delayConfig", name = "Sleep Delay Configuration", description = "Configure how the bot handles sleep delays", position = 0, closedByDefault = true)
+    @ConfigSection(keyName = "delayConfig", name = "Sleep Delay Configuration", description = "Configure how the bot handles sleep delays", position = 0)
     String delayConfig = "delayConfig";
-    @ConfigSection(keyName = "tickConfig", name = "Tick Delay Configuration", description = "Configure how the bot handles tick delays", position = 1, closedByDefault = true)
+    @ConfigSection(keyName = "tickConfig", name = "Tick Delay Configuration", description = "Configure how the bot handles tick delays", position = 1)
     String tickConfig = "tickConfig";
     @ConfigSection(keyName = "logicConfig", name = "Logic Configuration", description = "", position = 3)
     String logicConfig = "logicConfig";
     @ConfigSection(keyName = "potionConfig", name = "Potions & Food Configuration", description = "", position = 4)
     String potionConfig = "potionConfig";
-    @ConfigSection(keyName = "damageConfig", name = "Damage Configuration", description = "", position = 5)
-    String damageConfig = "damageConfig";
+
+    @ConfigItem(keyName = "key", name = "License Key", description = "", position = 0)
+    default String key() {
+        return "";
+    }
 
     @Range(min = 0, max = 550)
     @ConfigItem(keyName = "sleepMin", name = "Sleep Min", description = "", position = 2, section = "delayConfig")
@@ -80,14 +83,14 @@ public interface XRuneDragonsConfig
         return true;
     }
 
-    @ConfigItem(keyName = "usePOHdigsite", name = "Use POH digsite", description = "Enable to use POH digsite instead of necklace", position = 61, section = "logicConfig")
-    default boolean usePOHdigsite() {
+    @ConfigItem(keyName = "Retaliate", name = "Retaliate", description = "", position = 62, section = "logicConfig")
+    default boolean Retaliate() {
         return true;
     }
 
-    @ConfigItem(keyName = "lootValue", name = "Minimum loot value", description = "Provide of minimum GP value to loot", position = 63, section = "logicConfig")
-    default int lootValue() {
-        return 2000;
+    @ConfigItem(keyName = "lootNames", name = "Items to loot (separate with comma)", description = "Provide partial or full names of items you'd like to loot.", position = 63, section = "logicConfig")
+    default String lootNames() {
+        return "head,key,visage,hide,bone,rune,diamond,ore,bolt,seed,bar,uncut,jar,arrow,logs,dragon,grapes,manta,coins,battlestaff,wrath,runite,chaos,death";
     }
 
     @ConfigItem(keyName = "supercombats", name = "Use (divine) super combats", description = "Enable to use Divine Super Combats. Disable to use regular Super Combat", position = 59, section = "potionConfig")
@@ -133,45 +136,14 @@ public interface XRuneDragonsConfig
         return 70;
     }
 
-    @ConfigItem(keyName = "useVengeance", name = "Use Vengeance", description = "Enable to use Vengeance on purple hitsplat.", position = 85, section = "damageConfig")
-    default boolean useVengeance() {
-        return false;
-    }
-
-    @ConfigItem(keyName = "useSpec", name = "Use Spec Weapon", description = "Enable to use Spec Weapon", position = 90, section = "damageConfig")
-    default boolean useSpec() {
-        return false;
-    }
-
-    @ConfigItem(keyName = "specId", name = "Spec Weapon ID", description = "Spec weapon ID to use.", position = 91, section = "damageConfig")
-    default int specId() {
-        return 13652;
-    }
-
-    @ConfigItem(keyName = "mainId", name = "Main Weapon ID", description = "Main weapon ID to use.", position = 92, section = "damageConfig")
-    default int mainId() {
-        return 22978;
-    }
-
-    @ConfigItem(keyName = "shieldId", name = "Shield ID", description = "Shield weapon ID to use.", position = 93, section = "damageConfig")
-    default int shieldId() {
-        return 22322;
-    }
-
-    @Range(min = 0, max = 100)
-    @ConfigItem(keyName = "specTreshhold", name = "Spec threshhold", description = "Amount of spec % before using spec.", position = 96, section = "damageConfig")
-    default int specTreshhold() {
-        return 70;
-    }
-
-    @Range(min = 0, max = 330)
-    @ConfigItem(keyName = "specHp", name = "Spec HP", description = "Min amount of HP before using spec.", position = 97, section = "damageConfig")
-    default int specHp() {
-        return 200;
-    }
-
-    @ConfigItem(keyName = "startButton", name = "Start/Stop", description = "Button to start or stop the plugin", position = 33)
+    @ConfigItem(
+            keyName = "startButton",
+            name = "Start/Stop",
+            description = "Button to start or stop the plugin",
+            position = 33
+    )
     default Button startButton() {
         return new Button();
     }
 }
+

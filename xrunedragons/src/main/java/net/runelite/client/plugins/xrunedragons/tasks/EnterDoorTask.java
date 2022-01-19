@@ -12,7 +12,10 @@ public class EnterDoorTask extends Task {
 
     @Override
     public boolean validate() {
-        return client.getLocalPlayer().getWorldArea().intersectsWith(lithkrenDownStairs);
+        if (client.getLocalPlayer().getWorldArea().intersectsWith(lithkrenDownStairs)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -1,43 +1,33 @@
-//this works
-
-import ProjectVersions.openosrsVersion
-
 buildscript {
     repositories {
         gradlePluginPortal()
-    }
-    dependencies {
-        classpath("com.guardsquare:proguard-gradle:7.1.0");
     }
 }
 
 plugins {
     checkstyle
     java
-    id("com.anatawa12.tools.decompileCrasher") version "1.2.3"
 }
 
-project.extra["GithubUrl"] = "https://github.com/Xeriut/XPlugins-source"
-
 apply<BootstrapPlugin>()
+apply<VersionPlugin>()
 
 allprojects {
-    group = "com.openosrs"
-    version = ProjectVersions.openosrsVersion
-
-    apply<MavenPublishPlugin>()
     repositories {
         mavenLocal()
         mavenCentral()
         jcenter()
     }
+    group = "com.openosrs"
+    version = ProjectVersions.openosrsVersion
+    apply<MavenPublishPlugin>()
 }
 
 subprojects {
     group = "com.openosrs.externals"
 
-    project.extra["PluginProvider"] = "XPlugins"
-    project.extra["ProjectUrl"] = "https://discord.gg/GU3byFdvwt"
+    project.extra["PluginProvider"] = "OpenOSRS"
+    project.extra["ProjectUrl"] = "https://discord.gg/OpenOSRS"
     project.extra["PluginLicense"] = "3-Clause BSD License"
 
     repositories {
@@ -92,10 +82,9 @@ subprojects {
         compileOnly(group = "org.projectlombok", name = "lombok", version = "1.18.16")
         compileOnly(group = "com.squareup.okhttp3", name = "okhttp", version = "4.9.1")
         compileOnly(group = "org.pf4j", name = "pf4j", version = "3.6.0")
-        compileOnly(group = "org.pf4j", name = "pf4j-update", version = "2.3.0")
         compileOnly(group = "io.reactivex.rxjava3", name = "rxjava", version = "3.1.1")
 
-        compileOnly(group = "com.openosrs.externals", name = "iutils", version = "4.7.7")
+        compileOnly(group = "com.openosrs.externals", name = "iutils", version = "4.7.6")
 
         testAnnotationProcessor(group = "org.projectlombok", name = "lombok", version = "1.18.16")
 
@@ -113,6 +102,13 @@ subprojects {
         testImplementation(group = "org.projectlombok", name = "lombok", version = "1.18.16")
         testImplementation(group = "org.hamcrest", name = "hamcrest-library", version = "2.2")
         testImplementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.32")
+    }
+
+    checkstyle {
+        maxWarnings = 0
+        toolVersion = "9.1"
+        isShowViolations = true
+        isIgnoreFailures = false
     }
 
     configure<PublishingExtension> {
@@ -143,6 +139,14 @@ subprojects {
             isReproducibleFileOrder = true
             dirMode = 493
             fileMode = 420
+        }
+
+        withType<Checkstyle> {
+            group = "verification"
+
+            exclude("**/ScriptVarType.java")
+            exclude("**/LayoutSolver.java")
+            exclude("**/RoomType.java")
         }
 
         register<Copy>("copyDeps") {
