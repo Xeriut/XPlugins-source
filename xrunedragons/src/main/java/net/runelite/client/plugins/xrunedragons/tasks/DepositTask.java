@@ -22,14 +22,15 @@ public class DepositTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
+        utils.sendGameMessage("Already deposited? " + XRuneDragonsPlugin.deposited);
         started = true;
         bank.depositAllExcept(XRuneDragonsPlugin.inventorySetup);
         XRuneDragonsPlugin.deposited = true;
     }
 
     @Override
-    public void checkFinished() {
+    public void checkFinished(GameTick event) {
         if (XRuneDragonsPlugin.deposited = true) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;

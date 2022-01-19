@@ -27,7 +27,7 @@ public class TeleEdgeTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         DecorativeObject decObstacle = object.findNearestDecorObject(13523);
         if (decObstacle != null) {
             started = true;
@@ -37,7 +37,7 @@ public class TeleEdgeTask extends Task {
     }
 
     @Override
-    public void checkFinished() {
+    public void checkFinished(GameTick event) {
         if (atEdge()) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;

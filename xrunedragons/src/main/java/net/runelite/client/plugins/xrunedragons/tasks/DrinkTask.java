@@ -50,7 +50,7 @@ public class DrinkTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         if(atDragons()) {
             if (client.getBoostedSkillLevel(Skill.PRAYER) <= XRuneDragonsPlugin.taskConfig.prayerMin()) {
                 WidgetItem prayerItem = inventory.getWidgetItem(PRAYER_POTS);

@@ -60,7 +60,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 
 @Extension
@@ -72,7 +71,7 @@ import java.util.Set;
         tags = {"xerit", "rune", "dragon", "bot"}
 )
 @Slf4j
-public class XRuneDragonsPlugin extends iScript {
+public class XRuneDragonsPlugin extends Plugin {
 
     @Inject
     private Client client;
@@ -134,14 +133,6 @@ public class XRuneDragonsPlugin extends iScript {
 
     static int killCount;
 
-    public static Set<Integer> DIGSITE_PENDANTS = Set.of(
-            ItemID.DIGSITE_PENDANT_1,
-            ItemID.DIGSITE_PENDANT_2,
-            ItemID.DIGSITE_PENDANT_3,
-            ItemID.DIGSITE_PENDANT_4,
-            ItemID.DIGSITE_PENDANT_5
-    );
-
     @Provides
     XRuneDragonsConfig getConfig(ConfigManager configManager) {
         return configManager.getConfig(XRuneDragonsConfig.class);
@@ -149,54 +140,13 @@ public class XRuneDragonsPlugin extends iScript {
 
     @Override
     protected void startUp() {
-
+        utils.sendGameMessage("We start");
     }
 
     @Override
     protected void shutDown() {
-        stop();
-    }
-
-    @Override
-    public void onStart() {
-        log.info("Starting XRuneDragons");
-        taskConfig = config;
-
-        if (client != null && game.localPlayer() != null && client.getGameState() == GameState.LOGGED_IN) {
-            getMachineID();
-            int license = checkLicense();
-            switch(license) {
-                case 200: {
-                    utils.sendGameMessage("License is valid");
-                    log.info("starting XRuneDragons");
-                    taskConfig = config;
-                    resetPlugin();
-                    initInventory();
-                    loadTasks();
-                    botTimer = Instant.now();
-                    overlayManager.add(overlay);
-                    beforeLoc = client.getLocalPlayer().getLocalLocation();
-                    return;
-                }
-                case 401: {
-                    utils.sendGameMessage("HWID is not correct");
-                    stop();
-                }
-                default: {
-                    utils.sendGameMessage("License is invalid");
-                    stop();
-                }
-            }
-        } else {
-            log.info("Start logged in!");
-            stop();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        log.info("Stopping XRuneDragons Free");
         resetPlugin();
+        utils.sendGameMessage("We stop");
     }
 
     private void loadTasks() {
@@ -250,14 +200,55 @@ public class XRuneDragonsPlugin extends iScript {
         }
 
         if (configButtonClicked.getKey().equals("startButton")) {
-            execute();
+            if (!running) {
+                getMachineID();
+                int license = checkLicense();
+                switch(license) {
+                    case 200: {
+                        Player player = client.getLocalPlayer();
+                        if (client != null && player != null && client.getGameState() == GameState.LOGGED_IN) {
+                            log.info("starting XRuneDragons");
+                            initInventory();
+                            task = null;
+                            taskConfig = config;
+                            loadTasks();
+                            running = true;
+                            tickLength = 0;
+                            sleepLength = 0;
+                            timeout = 0;
+                            targetMenu = null;
+                            botTimer = Instant.now();
+                            overlayManager.add(overlay);
+                            beforeLoc = client.getLocalPlayer().getLocalLocation();
+                            killCount = 0;
+                            return;
+                        } else {
+                            log.info("Start logged in");
+                            return;
+                        }
+                    }
+                    case 401: {
+                        utils.sendGameMessage("HWID is not correct");
+                        return;
+                    }
+                    case 500: {
+                        utils.sendGameMessage("License is invalid");
+                        return;
+                    }
+                }
+            } else {
+                resetPlugin();
+            }
         }
     }
 
-    @Override
-    public void loop() {
+    @Subscribe
+    private void onGameTick(GameTick event) {
+        if (!running) {
+            return;
+        }
         localPlayer = client.getLocalPlayer();
-        if (client != null && localPlayer != null) {
+        if (client != null && localPlayer != null && client.getGameState() == GameState.LOGGED_IN) {
             if (!client.isResized()) {
                 utils.sendGameMessage("Please set game to resizable mode.");
                 resetPlugin();
@@ -277,14 +268,14 @@ public class XRuneDragonsPlugin extends iScript {
                 task.finished = false;
                 task = tasks.getValidTask();
                 status = task.getTaskDescription();
-                task.onGameTick();
-                if(status == "Logout") stop();;
+                task.onGameTick(event);
+                if(status == "Logout") resetPlugin();
             } else if (task != null && !task.isFinished() && task.isStarted()) {
-                task.checkFinished();
+                task.checkFinished(event);
             } else if (task != null && !task.isFinished() && !task.isStarted()) {
                 status = task.getTaskDescription();
-                task.onGameTick();
-                if(status == "Logout") stop();;
+                task.onGameTick(event);
+                if(status == "Logout") resetPlugin();
             } else {
                 task = tasks.getValidTask();
             }
@@ -404,16 +395,11 @@ public class XRuneDragonsPlugin extends iScript {
 
     private int checkLicense() {
         if(config.key() != "" && machineId != null) {
-            String postEndpoint = "https://xplugins-license.herokuapp.com/auth/verify";
+            String postEndpoint = "http://localhost:8080/auth/verify";
 
             JsonObject json = new JsonObject();
             json.addProperty("key", config.key());
             json.addProperty("machineId", machineId);
-            if(OS.indexOf("win") >= 0) {
-                json.addProperty("machineOs", "win");
-            } else if(OS.indexOf("mac") >= 0) {
-                json.addProperty("machineOs", "mac");
-            }
 
             var request = HttpRequest.newBuilder()
                     .uri(URI.create(postEndpoint))
@@ -425,6 +411,8 @@ public class XRuneDragonsPlugin extends iScript {
 
             try {
                 var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                utils.sendGameMessage("Response code: " + response.statusCode());
+                utils.sendGameMessage("Body: " + response.body());
                 return response.statusCode();
             } catch (InterruptedException e) {
                 log.error(e.getMessage());
@@ -456,9 +444,6 @@ public class XRuneDragonsPlugin extends iScript {
         }
         if (!config.supercombats()) {
             inventorySetup.add(ItemID.SUPER_COMBAT_POTION4);
-        }
-        if(!config.usePOHdigsite()) {
-            inventorySetup.addAll(DIGSITE_PENDANTS);
         }
         inventorySetup.add(ItemID.PRAYER_POTION4);
         inventorySetup.add(config.foodID());

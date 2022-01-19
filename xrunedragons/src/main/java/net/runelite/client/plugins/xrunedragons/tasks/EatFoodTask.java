@@ -32,7 +32,7 @@ public class EatFoodTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         started = true;
         WidgetItem foodItem = inventory.getWidgetItem(XRuneDragonsPlugin.taskConfig.foodID());
         if (foodItem != null) {

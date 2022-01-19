@@ -44,7 +44,7 @@ public class WithdrawTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         started = true;
         if (!inventory.containsItem(ItemID.TELEPORT_TO_HOUSE)) {
             bank.withdrawItemAmount(ItemID.TELEPORT_TO_HOUSE, 10);

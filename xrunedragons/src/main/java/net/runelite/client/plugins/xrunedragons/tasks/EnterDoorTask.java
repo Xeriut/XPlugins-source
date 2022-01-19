@@ -24,14 +24,14 @@ public class EnterDoorTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         started = true;
         GameObject obj = object.findNearestGameObject(32117);
         utils.doGameObjectActionMsTime(obj, MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), sleepDelay());
     }
 
     @Override
-    public void checkFinished() {
+    public void checkFinished(GameTick event) {
         if (client.getLocalPlayer().getWorldArea().intersectsWith(lithkrenBehindDoor)) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;

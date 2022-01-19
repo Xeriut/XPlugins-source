@@ -23,13 +23,13 @@ public class WalkDoorTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         started = true;
         walk.sceneWalk(new WorldPoint(1573, 5074, 0), 0, sleepDelay());
     }
 
     @Override
-    public void checkFinished() {
+    public void checkFinished(GameTick event) {
         if (client.getLocalPlayer().getWorldLocation().equals(new WorldPoint(1573, 5074, 0))) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;

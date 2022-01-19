@@ -27,7 +27,7 @@ public class TeleLithTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         DecorativeObject decObstacle = object.findNearestDecorObject(33418);
         if (decObstacle != null) {
             started = true;
@@ -37,7 +37,7 @@ public class TeleLithTask extends Task {
     }
 
     @Override
-    public void checkFinished() {
+    public void checkFinished(GameTick event) {
         if (atLith()) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;

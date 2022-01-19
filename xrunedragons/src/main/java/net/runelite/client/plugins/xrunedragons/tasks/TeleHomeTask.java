@@ -46,7 +46,7 @@ public class TeleHomeTask extends Task {
     }
 
     @Override
-    public void onGameTick() {
+    public void onGameTick(GameTick event) {
         WidgetItem teleItem = inventory.getWidgetItem(ItemID.TELEPORT_TO_HOUSE);
         if (teleItem != null) {
             started = true;
@@ -59,7 +59,7 @@ public class TeleHomeTask extends Task {
     }
 
     @Override
-    public void checkFinished() {
+    public void checkFinished(GameTick event) {
         if (atPOH()) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;
