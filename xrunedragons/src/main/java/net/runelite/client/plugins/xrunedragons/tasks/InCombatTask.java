@@ -30,7 +30,7 @@ public class InCombatTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         finished = true;
     }

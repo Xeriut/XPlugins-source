@@ -28,7 +28,7 @@ public class LootTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         lootItem(XRuneDragonsPlugin.itemsToLoot);
         XRuneDragonsPlugin.timeout = tickDelay();

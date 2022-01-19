@@ -26,7 +26,7 @@ public class LogoutTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         utils.sendGameMessage("I can't teleport. Logging out.");
         interfaceUtils.logout();

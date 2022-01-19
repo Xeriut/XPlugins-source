@@ -36,7 +36,7 @@ public class AttackDragonTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         if (XRuneDragonsPlugin.currentNPC != null) {
             entry = new LegacyMenuEntry("", "", XRuneDragonsPlugin.currentNPC.getIndex(), MenuAction.NPC_SECOND_OPTION.getId(),

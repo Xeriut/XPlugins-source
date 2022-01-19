@@ -28,7 +28,7 @@ public class DrinkPoolTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         GameObject obj = object.findNearestGameObject(29240, 29241);
         utils.doGameObjectActionMsTime(obj, MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), sleepDelay());

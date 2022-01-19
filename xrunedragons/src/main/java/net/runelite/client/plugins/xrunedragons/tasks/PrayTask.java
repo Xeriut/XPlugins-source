@@ -25,7 +25,7 @@ public class PrayTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         if (atDragons()) {
             if (!prayerUtils.isQuickPrayerActive()) {

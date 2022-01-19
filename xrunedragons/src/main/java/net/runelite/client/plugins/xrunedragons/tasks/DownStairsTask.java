@@ -24,14 +24,14 @@ public class DownStairsTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         GameObject obj = object.findNearestGameObject(32113);
         utils.doGameObjectActionMsTime(obj, MenuAction.GAME_OBJECT_FIRST_OPTION.getId(), sleepDelay());
     }
 
     @Override
-    public void checkFinished(GameTick event) {
+    public void checkFinished() {
         if (client.getLocalPlayer().getWorldArea().intersectsWith(lithkrenDownStairs)) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;

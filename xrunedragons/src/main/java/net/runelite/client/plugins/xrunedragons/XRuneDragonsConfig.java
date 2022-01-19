@@ -83,8 +83,8 @@ public interface XRuneDragonsConfig
         return true;
     }
 
-    @ConfigItem(keyName = "Retaliate", name = "Retaliate", description = "", position = 62, section = "logicConfig")
-    default boolean Retaliate() {
+    @ConfigItem(keyName = "usePOHdigsite", name = "Use POH digsite", description = "Enable to use POH digsite instead of necklace", position = 61, section = "logicConfig")
+    default boolean usePOHdigsite() {
         return true;
     }
 

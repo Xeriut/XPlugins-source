@@ -107,11 +107,11 @@ public abstract class Task extends UtilsScript {
 
     public boolean isStarted() { return started; };
 
-    public void checkFinished(GameTick event) {
+    public void checkFinished() {
         return;
     }
 
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         return;
     }
 

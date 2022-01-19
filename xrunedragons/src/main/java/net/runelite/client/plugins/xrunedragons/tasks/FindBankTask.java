@@ -27,7 +27,7 @@ public class FindBankTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         GameObject bankTarget = object.findNearestBank();
         if (bankTarget != null) {
@@ -42,7 +42,7 @@ public class FindBankTask extends Task {
     }
 
     @Override
-    public void checkFinished(GameTick event) {
+    public void checkFinished() {
         if (bank.isOpen()) {
             XRuneDragonsPlugin.timeout = tickDelay();
             finished = true;

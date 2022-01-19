@@ -16,7 +16,7 @@ public class TimeoutTask extends Task {
     }
 
     @Override
-    public void onGameTick(GameTick event) {
+    public void onGameTick() {
         started = true;
         XRuneDragonsPlugin.timeout--;
         finished = true;
