@@ -31,7 +31,7 @@ public class LootTask extends Task {
     @Override
     public void onGameTick(GameTick event) {
         started = true;
-        lootItem(XRuneDragonsPlugin.itemsToLoot);
+        lootItem(XRuneDragonsPlugin.itemsToLoot.get(0));
         XRuneDragonsPlugin.timeout = tickDelay();
         finished = true;
     }
@@ -51,19 +51,20 @@ public class LootTask extends Task {
     }
 
 
-    private void lootItem(List<TileItem> itemList) {
-        TileItem lootItem = getNearestTileItem(itemList);
+    private void lootItem(TileItem lootItem) {
+        log.info("We start looting");
         if (lootItem != null) {
+            log.info("Loot Item is not null " + lootItem.getTile());
             entry = new LegacyMenuEntry("", "", lootItem.getId(), MenuAction.GROUND_ITEM_THIRD_OPTION.getId(),
                     lootItem.getTile().getSceneLocation().getX(), lootItem.getTile().getSceneLocation().getY(), false);
             menu.setEntry(entry);
             mouse.delayMouseClick(lootItem.getTile().getItemLayer().getCanvasTilePoly().getBounds(), sleepDelay());
-            try {
-                int itemPrice = utils.getItemPrice(lootItem.getId(), true);
-                XRuneDragonsPlugin.updateLoot(itemPrice);
-            } catch (Exception e) {
-                log.error("Something went wrong adding loot");
-            }
+            log.info("Loot Item price getting");
+            int itemPrice = utils.getItemPrice(lootItem.getId(), true)  * lootItem.getQuantity();
+            if(itemPrice > 0) {
+               log.info("Loot Item price not null");
+               XRuneDragonsPlugin.updateLoot(itemPrice);
+           }
         }
         XRuneDragonsPlugin.timeout = tickDelay();
     }

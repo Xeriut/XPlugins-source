@@ -10,7 +10,7 @@ public class DepositTask extends Task {
 
     @Override
     public boolean validate() {
-        if(bank.isOpen() && !XRuneDragonsPlugin.deposited) {
+        if(bank.isOpen() && (!XRuneDragonsPlugin.deposited || inventory.containsExcept(XRuneDragonsPlugin.inventorySetup))) {
             return true;
         }
         return false;

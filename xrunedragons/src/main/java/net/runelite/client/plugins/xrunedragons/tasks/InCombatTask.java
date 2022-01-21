@@ -16,9 +16,9 @@ public class InCombatTask extends Task {
                 if(XRuneDragonsPlugin.currentNPC == (NPC) XRuneDragonsPlugin.localPlayer.getInteracting()) {
                     return true;
                 }
-            }
-            if (XRuneDragonsPlugin.currentNPC != null) {
-                return true;
+                if (XRuneDragonsPlugin.currentNPC != null) {
+                    return true;
+                }
             }
         }
         return false;

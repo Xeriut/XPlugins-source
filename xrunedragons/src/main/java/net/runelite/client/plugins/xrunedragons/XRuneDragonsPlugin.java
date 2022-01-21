@@ -45,6 +45,7 @@ import net.runelite.client.plugins.iutils.*;
 import net.runelite.client.plugins.iutils.api.Spells;
 import net.runelite.client.plugins.xrunedragons.tasks.*;
 import net.runelite.client.ui.overlay.OverlayManager;
+import okhttp3.*;
 import org.pf4j.Extension;
 
 import javax.inject.Inject;
@@ -107,6 +108,11 @@ public class XRuneDragonsPlugin extends Plugin {
     @Inject
     private ConfigManager configManager;
 
+    private final OkHttpClient httpClient = new OkHttpClient();
+
+    public static final MediaType JSON
+            = MediaType.get("application/json; charset=utf-8");
+
     private static String OS = System.getProperty("os.name").toLowerCase();
 
     private String machineId = null;
@@ -121,9 +127,7 @@ public class XRuneDragonsPlugin extends Plugin {
     private Task task;
 
     public static List<Integer> inventorySetup = new ArrayList<>();
-    public static final List<String> lootNamesList = new ArrayList<>();
     public static List<TileItem> itemsToLoot = new ArrayList<>();
-    private static String[] lootNames;
 
     public static NPC currentNPC;
     public static WorldPoint deathLocation;
@@ -143,8 +147,8 @@ public class XRuneDragonsPlugin extends Plugin {
     static int totalLoot;
     static int lootPerH;
 
-    static int mainWeaponId = 0;
-    static int shieldId = 0;
+    public static int mainWeaponId = 0;
+    public static int shieldId = 0;
 
     @Provides
     XRuneDragonsConfig getConfig(ConfigManager configManager) {
@@ -175,6 +179,8 @@ public class XRuneDragonsPlugin extends Plugin {
                 injector.getInstance(DrinkTask.class),
                 injector.getInstance(LootTask.class),
                 injector.getInstance(AttackDragonTask.class),
+                injector.getInstance(SpecTask.class),
+                injector.getInstance(EquipTask.class),
                 injector.getInstance(InCombatTask.class),
                 injector.getInstance(DrinkPoolTask.class),
                 injector.getInstance(DownStairsTask.class),
@@ -193,11 +199,6 @@ public class XRuneDragonsPlugin extends Plugin {
         tasks.clear();
         inventorySetup.clear();
         itemsToLoot.clear();
-        lootNamesList.clear();
-        lootNames = config.lootNames().toLowerCase().split("\\s*,\\s*");
-        if (!config.lootNames().isBlank()) {
-            lootNamesList.addAll(Arrays.asList(lootNames));
-        }
         overlayManager.remove(overlay);
         currentNPC = null;
         deposited = false;
@@ -217,7 +218,6 @@ public class XRuneDragonsPlugin extends Plugin {
 
         if (configButtonClicked.getKey().equals("startButton")) {
             if (!running) {
-                overlayManager.add(overlay);
                 getMachineID();
                 int license = checkLicense();
                 switch(license) {
@@ -313,7 +313,9 @@ public class XRuneDragonsPlugin extends Plugin {
                 task.started = false;
                 task.finished = false;
                 task = tasks.getValidTask();
-                status = task.getTaskDescription();
+                if(task.getTaskDescription() != null) {
+                    status = task.getTaskDescription();
+                }
                 task.onGameTick(event);
                 taskIteration++;
                 if(status == "Logout") resetPlugin();
@@ -457,8 +459,6 @@ public class XRuneDragonsPlugin extends Plugin {
 
     private int checkLicense() {
         if(config.key() != "" && machineId != null) {
-            String postEndpoint = "https://xplugins-license.herokuapp.com/auth/verify";
-
             JsonObject json = new JsonObject();
             json.addProperty("key", config.key());
             json.addProperty("machineId", machineId);
@@ -468,22 +468,19 @@ public class XRuneDragonsPlugin extends Plugin {
                 json.addProperty("machineOs", "mac");
             }
 
-            var request = HttpRequest.newBuilder()
-                    .uri(URI.create(postEndpoint))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+            RequestBody body = RequestBody.create(json.toString(), JSON);
+
+            Request request = new Request.Builder()
+                    .url("https://xplugins-license.herokuapp.com/auth/verify")
+                    .post(body)
                     .build();
 
-            var httpClient = HttpClient.newHttpClient();
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (!response.isSuccessful()) return 500;
 
-            try {
-                var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                return response.statusCode();
-            } catch (InterruptedException e) {
-                log.error(e.getMessage());
-                return 500;
+                return response.code();
             } catch (IOException e) {
-                log.error(e.getMessage());
+                e.printStackTrace();
                 return 500;
             }
         }
@@ -491,9 +488,9 @@ public class XRuneDragonsPlugin extends Plugin {
     }
 
     private boolean lootableItem(TileItem item) {
-        String itemName = client.getItemDefinition(item.getId()).getName().toLowerCase();
-        boolean inLoot = lootNamesList.stream().anyMatch(itemName.toLowerCase()::contains);
-        return (item.getTile().getWorldLocation().equals(deathLocation) || item.getTile().getWorldLocation().distanceTo(deathLocation) <= 2) && lootNamesList.stream().anyMatch(itemName.toLowerCase()::contains);
+        int haValue = client.getItemDefinition(item.getId()).getHaPrice();
+        int itemPrice = utils.getItemPrice(item.getId(), true) * item.getQuantity();
+        return (item.getTile().getWorldLocation().equals(deathLocation) || item.getTile().getWorldLocation().distanceTo(deathLocation) <= 2) && (itemPrice >= config.lootValue() || haValue >= config.lootValue());
     }
 
     private boolean initInventory() {
@@ -520,15 +517,8 @@ public class XRuneDragonsPlugin extends Plugin {
             inventorySetup.add(config.specId());
         }
         inventorySetup.add(ItemID.PRAYER_POTION4);
+        inventorySetup.add(ItemID.TELEPORT_TO_HOUSE);
         inventorySetup.add(config.foodID());
-        Widget mainWeapon = client.getWidget(WidgetInfo.EQUIPMENT_WEAPON);
-        Widget shield = client.getWidget(WidgetInfo.EQUIPMENT_SHIELD);
-        if(mainWeapon == null || shield == null || !inventory.containsItem(config.specId())) {
-            utils.sendGameMessage("Please equip your main weapon and shield, and have your Spec weapon in your inventory.");
-            return false;
-        }
-        mainWeaponId = mainWeapon.getId();
-        shieldId = shield.getId();
         log.info("required inventory items: {}", inventorySetup.toString());
         return true;
     }

@@ -126,17 +126,17 @@ public abstract class Task extends UtilsScript {
         return;
     }
 
-    public long sleepDelay() {
+    protected long sleepDelay() {
         XRuneDragonsPlugin.sleepLength = calc.randomDelay(XRuneDragonsPlugin.taskConfig.sleepWeightedDistribution(), XRuneDragonsPlugin.taskConfig.sleepMin(), XRuneDragonsPlugin.taskConfig.sleepMax(), XRuneDragonsPlugin.taskConfig.sleepDeviation(), XRuneDragonsPlugin.taskConfig.sleepTarget());
         return XRuneDragonsPlugin.sleepLength;
     }
 
-    public int tickDelay() {
+    protected int tickDelay() {
         XRuneDragonsPlugin.tickLength = (int) calc.randomDelay(XRuneDragonsPlugin.taskConfig.tickDelayWeightedDistribution(), XRuneDragonsPlugin.taskConfig.tickDelayMin(), XRuneDragonsPlugin.taskConfig.tickDelayMax(), XRuneDragonsPlugin.taskConfig.tickDelayDeviation(), XRuneDragonsPlugin.taskConfig.tickDelayTarget());
         return XRuneDragonsPlugin.tickLength;
     }
 
-    public void useItem(WidgetItem item) {
+    protected void useItem(WidgetItem item) {
         if (item != null) {
             entry = new LegacyMenuEntry("", "", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(),
                     WidgetInfo.INVENTORY.getId(), false);
@@ -166,6 +166,8 @@ public abstract class Task extends UtilsScript {
             if(atDragons) {
                 if(client.getBoostedSkillLevel(Skill.HITPOINTS) <= XRuneDragonsPlugin.taskConfig.eatMin()) {
                     return true;
+                } else {
+                    return false;
                 }
             } else {
                 return true;
@@ -175,6 +177,8 @@ public abstract class Task extends UtilsScript {
             if(atDragons) {
                 if (client.getVarbitValue(6101) == 0) {
                     return true;
+                } else {
+                    return false;
                 }
             } else {
                 return true;
@@ -184,6 +188,8 @@ public abstract class Task extends UtilsScript {
             if(atDragons || atLith()) {
                 if (client.getVarbitValue(3981) == 0) {
                     return true;
+                } else {
+                    return false;
                 }
             } else {
                 return true;
@@ -193,6 +199,8 @@ public abstract class Task extends UtilsScript {
             if(atDragons || atLith()) {
                 if(client.getBoostedSkillLevel(Skill.STRENGTH) <= XRuneDragonsPlugin.taskConfig.combatMin()) {
                     return true;
+                } else {
+                    return false;
                 }
             } else {
                 return true;
@@ -202,6 +210,8 @@ public abstract class Task extends UtilsScript {
             if(atDragons || atLith()) {
                 if(client.getBoostedSkillLevel(Skill.STRENGTH) <= XRuneDragonsPlugin.taskConfig.combatMin()) {
                     return true;
+                } else {
+                    return false;
                 }
             } else {
                 return true;
@@ -226,9 +236,40 @@ public abstract class Task extends UtilsScript {
         }
     }
 
-    public NPC findRuneDragon() {
+    protected NPC findRuneDragon() {
         NPC npcTarget = npc.findNearestAttackableNpcWithin(client.getLocalPlayer().getWorldLocation(), 10, "Rune dragon", true);
         return npcTarget;
+    }
+
+    protected int getNpcHealth(NPC npc, Integer max) {
+        if (npc == null || npc.getName() == null) {
+            return -1;
+        }
+        int scale = npc.getHealthScale();
+        int ratio = npc.getHealthRatio();
+        if (ratio < 0 || scale <= 0 || max == null) {
+            return -1;
+        }
+        return (int)((float)(max * ratio / scale) + 0.5f);
+    }
+
+    protected Item getWeapon(int slot) {
+        assert client.isClientThread();
+
+        final ItemContainer equipment = client.getItemContainer(InventoryID.EQUIPMENT);
+
+        if (equipment == null)
+        {
+            return null;
+        }
+
+        Item weapon = equipment.getItem(slot);
+        if (weapon == null)
+        {
+            return null;
+        }
+
+        return weapon;
     }
 
 }

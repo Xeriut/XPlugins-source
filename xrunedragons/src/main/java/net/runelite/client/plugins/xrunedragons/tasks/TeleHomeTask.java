@@ -18,11 +18,13 @@ public class TeleHomeTask extends Task {
             if (!atPOH()) {
                 if (atDragons()) {
                     if (shouldRestock(true)) {
+                        log.info("We teleport home from dragons.");
                         return true;
                     }
                     if (client.getBoostedSkillLevel(Skill.HITPOINTS) <= XRuneDragonsPlugin.taskConfig.eatMin() && !inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID())) {
                         return true;
                     }
+                    return false;
                 }
                 if (atEdge()) {
                     if (!shouldRestock(false)) {

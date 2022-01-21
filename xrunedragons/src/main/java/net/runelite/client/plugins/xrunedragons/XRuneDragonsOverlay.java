@@ -2,6 +2,7 @@ package net.runelite.client.plugins.xrunedragons;
 
 import com.openosrs.client.ui.overlay.components.table.TableAlignment;
 import com.openosrs.client.ui.overlay.components.table.TableComponent;
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.MenuAction;
 import net.runelite.client.plugins.Plugin;
@@ -23,9 +24,9 @@ import java.time.Instant;
 import java.util.Locale;
 
 @Singleton
+@Slf4j
 class XRuneDragonsOverlay
         extends OverlayPanel {
-    private static final Logger logger = LoggerFactory.getLogger(net.runelite.client.plugins.xrunedragons.XRuneDragonsOverlay.class);
     private final XRuneDragonsPlugin plugin;
     private final XRuneDragonsConfig config;
     String a;
@@ -42,7 +43,7 @@ class XRuneDragonsOverlay
 
     public Dimension render(Graphics2D graphics2D) {
         if (plugin.botTimer == null) {
-            logger.debug("Overlay conditions not met, not starting overlay");
+            log.debug("Overlay conditions not met, not starting overlay");
             return null;
         }
         TableComponent tableComponent = new TableComponent();
@@ -62,13 +63,13 @@ class XRuneDragonsOverlay
         TableComponent tc = new TableComponent();
         tc.setColumnAlignments(new TableAlignment[]{TableAlignment.LEFT, TableAlignment.RIGHT});
         tc.addRow(new String[]{"Kills (p/h):", String.valueOf(plugin.killCount) + "(" + String.valueOf(plugin.killsPerH) + ")"});
-        tc.addRow("Profit (gp):", NumberFormat.getNumberInstance(Locale.US).format(plugin.totalLoot)
-                + " / " + NumberFormat.getNumberInstance(Locale.US).format(plugin.lootPerH));
+        tc.addRow("Profit (p/h):", NumberFormat.getNumberInstance(Locale.US).format(plugin.totalLoot)
+                + " (" + NumberFormat.getNumberInstance(Locale.US).format(plugin.lootPerH) + ")");
         if (tableComponent.isEmpty()) return super.render(graphics2D);
         panelComponent.setBackgroundColor(ColorUtil.fromHex((String)"#121212"));
         panelComponent.setPreferredSize(new Dimension(270, 200));
         panelComponent.setBorder(new Rectangle(5, 5, 5, 5));
-        panelComponent.getChildren().add(TitleComponent.builder().text("Rune Dragon Killer").color(ColorUtil.fromHex((String)"#40C4FF")).build());
+        panelComponent.getChildren().add(TitleComponent.builder().text("XRuneDragons").color(ColorUtil.fromHex((String)"#40C4FF")).build());
         panelComponent.getChildren().add(tableComponent);
         panelComponent.getChildren().add(TitleComponent.builder()
                 .text("Stats")

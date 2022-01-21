@@ -90,9 +90,9 @@ public interface XRuneDragonsConfig
         return true;
     }
 
-    @ConfigItem(keyName = "lootNames", name = "Items to loot (separate with comma)", description = "Provide partial or full names of items you'd like to loot.", position = 63, section = "logicConfig")
-    default String lootNames() {
-        return "head,key,visage,hide,bone,rune,diamond,ore,bolt,seed,bar,uncut,jar,arrow,logs,dragon,grapes,manta,coins,battlestaff,wrath,runite,chaos,death";
+    @ConfigItem(keyName = "lootValue", name = "Minimum loot value", description = "Provide of minimum GP value to loot", position = 63, section = "logicConfig")
+    default int lootValue() {
+        return 2000;
     }
 
     @ConfigItem(keyName = "supercombats", name = "Use (divine) super combats", description = "Enable to use Divine Super Combats. Disable to use regular Super Combat", position = 59, section = "potionConfig")
@@ -151,6 +151,28 @@ public interface XRuneDragonsConfig
     @ConfigItem(keyName = "specId", name = "Spec Weapon ID", description = "Spec weapon ID to use.", position = 91, section = "damageConfig")
     default int specId() {
         return 13652;
+    }
+
+    @ConfigItem(keyName = "mainId", name = "Main Weapon ID", description = "Main weapon ID to use.", position = 92, section = "damageConfig")
+    default int mainId() {
+        return 22978;
+    }
+
+    @ConfigItem(keyName = "shieldId", name = "Shield ID", description = "Shield weapon ID to use.", position = 93, section = "damageConfig")
+    default int shieldId() {
+        return 22322;
+    }
+
+    @Range(min = 0, max = 100)
+    @ConfigItem(keyName = "specTreshhold", name = "Spec threshhold", description = "Amount of spec % before using spec.", position = 96, section = "damageConfig")
+    default int specTreshhold() {
+        return 70;
+    }
+
+    @Range(min = 0, max = 330)
+    @ConfigItem(keyName = "specHp", name = "Spec HP", description = "Min amount of HP before using spec.", position = 97, section = "damageConfig")
+    default int specHp() {
+        return 200;
     }
 
     @ConfigItem(
