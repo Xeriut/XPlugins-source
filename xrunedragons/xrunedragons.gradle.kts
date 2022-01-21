@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "1.0.0"
+version = "1.0.5"
 
 project.extra["PluginName"] = "XRuneDragons"
 project.extra["PluginDescription"] = "Kill rune dragons"

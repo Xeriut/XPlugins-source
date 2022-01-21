@@ -52,10 +52,10 @@ public class TeleHomeTask extends Task {
             started = true;
             useItem(teleItem);
             log.debug("Teleporting home");
-            XRuneDragonsPlugin.deposited = true;
+            XRuneDragonsPlugin.deposited = false;
         }
         log.debug("Can't teleport home");
-        XRuneDragonsPlugin.deposited = true;
+        XRuneDragonsPlugin.deposited = false;
     }
 
     @Override

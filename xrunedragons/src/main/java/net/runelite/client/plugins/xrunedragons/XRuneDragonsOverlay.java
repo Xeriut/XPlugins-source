@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.*;
+import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Locale;
 
 @Singleton
 class XRuneDragonsOverlay
@@ -27,7 +29,7 @@ class XRuneDragonsOverlay
     private final XRuneDragonsPlugin plugin;
     private final XRuneDragonsConfig config;
     String a;
-    private String status = "Starting...";
+    private String status = "Checking license...";
 
     @Inject
     private XRuneDragonsOverlay(Client client, XRuneDragonsPlugin xRuneDragonsPlugin, XRuneDragonsConfig xRuneDragonsConfig) {
@@ -55,17 +57,23 @@ class XRuneDragonsOverlay
             status = "Waiting...";
         }
         tableComponent.addRow(new String[]{"Status:", status});
-        tableComponent.addRow(new String[]{"Total kills:", String.valueOf(plugin.killCount)});
 
 
         TableComponent tc = new TableComponent();
         tc.setColumnAlignments(new TableAlignment[]{TableAlignment.LEFT, TableAlignment.RIGHT});
+        tc.addRow(new String[]{"Kills (p/h):", String.valueOf(plugin.killCount) + "(" + String.valueOf(plugin.killsPerH) + ")"});
+        tc.addRow("Profit (gp):", NumberFormat.getNumberInstance(Locale.US).format(plugin.totalLoot)
+                + " / " + NumberFormat.getNumberInstance(Locale.US).format(plugin.lootPerH));
         if (tableComponent.isEmpty()) return super.render(graphics2D);
         panelComponent.setBackgroundColor(ColorUtil.fromHex((String)"#121212"));
-        panelComponent.setPreferredSize(new Dimension(200, 200));
+        panelComponent.setPreferredSize(new Dimension(270, 200));
         panelComponent.setBorder(new Rectangle(5, 5, 5, 5));
         panelComponent.getChildren().add(TitleComponent.builder().text("Rune Dragon Killer").color(ColorUtil.fromHex((String)"#40C4FF")).build());
         panelComponent.getChildren().add(tableComponent);
+        panelComponent.getChildren().add(TitleComponent.builder()
+                .text("Stats")
+                .color(ColorUtil.fromHex("#FFA000"))
+                .build());
         panelComponent.getChildren().add(tc);
         return super.render(graphics2D);
     }

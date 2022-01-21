@@ -6,6 +6,7 @@ import net.runelite.api.NPC;
 import net.runelite.api.TileItem;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.plugins.iutils.LegacyMenuEntry;
+import net.runelite.client.plugins.iutils.api.GrandExchangePrices;
 import net.runelite.client.plugins.xrunedragons.Task;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
 
@@ -57,6 +58,12 @@ public class LootTask extends Task {
                     lootItem.getTile().getSceneLocation().getX(), lootItem.getTile().getSceneLocation().getY(), false);
             menu.setEntry(entry);
             mouse.delayMouseClick(lootItem.getTile().getItemLayer().getCanvasTilePoly().getBounds(), sleepDelay());
+            try {
+                int itemPrice = utils.getItemPrice(lootItem.getId(), true);
+                XRuneDragonsPlugin.updateLoot(itemPrice);
+            } catch (Exception e) {
+                log.error("Something went wrong adding loot");
+            }
         }
         XRuneDragonsPlugin.timeout = tickDelay();
     }

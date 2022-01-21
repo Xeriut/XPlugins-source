@@ -33,6 +33,9 @@ public class WithdrawTask extends Task {
             if (!inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID()) || !inventory.containsItemAmount(XRuneDragonsPlugin.taskConfig.foodID(), XRuneDragonsPlugin.taskConfig.foodAmount(), false, true)) {
                 return true;
             }
+            if(!inventory.containsItem(DIGSITE_PENDANTS) && !XRuneDragonsPlugin.taskConfig.usePOHdigsite()) {
+                return true;
+            }
             return false;
         }
         return false;
@@ -61,13 +64,16 @@ public class WithdrawTask extends Task {
         if (!inventory.containsItem(SUPER_EXTENDED_ANTIFIRE_POTS) && XRuneDragonsPlugin.taskConfig.superantifire()) {
             bank.withdrawItem(ItemID.EXTENDED_SUPER_ANTIFIRE4);
         }
-        if (!inventory.containsItem(PRAYER_POTS)) {
+        if (!inventory.containsItem(PRAYER_POTS) || !inventory.containsItemAmount(ItemID.PRAYER_POTION4, XRuneDragonsPlugin.taskConfig.praypotAmount(), false, true)) {
             int amountInInvetory = inventory.getItemCount(ItemID.PRAYER_POTION4, false);
             bank.withdrawItemAmount(ItemID.PRAYER_POTION4, XRuneDragonsPlugin.taskConfig.praypotAmount() - amountInInvetory);
         }
         if (!inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID()) || !inventory.containsItemAmount(XRuneDragonsPlugin.taskConfig.foodID(), XRuneDragonsPlugin.taskConfig.foodAmount(), false, true)) {
             int amountInInvetory = inventory.getItemCount(XRuneDragonsPlugin.taskConfig.foodID(), false);
             bank.withdrawItemAmount(XRuneDragonsPlugin.taskConfig.foodID(), XRuneDragonsPlugin.taskConfig.foodAmount() - amountInInvetory);
+        }
+        if(!inventory.containsItem(DIGSITE_PENDANTS) && !XRuneDragonsPlugin.taskConfig.usePOHdigsite()) {
+            bank.withdrawItem(ItemID.DIGSITE_PENDANT_5);
         }
         XRuneDragonsPlugin.timeout = 2 + tickDelay();
         finished = true;

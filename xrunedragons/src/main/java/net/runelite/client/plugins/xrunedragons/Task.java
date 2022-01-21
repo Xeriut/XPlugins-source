@@ -8,6 +8,7 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.plugins.iutils.*;
+import net.runelite.client.plugins.iutils.api.GrandExchangePrices;
 import net.runelite.client.plugins.iutils.scripts.UtilsScript;
 
 import javax.inject.Inject;
@@ -38,6 +39,8 @@ public abstract class Task extends UtilsScript {
     public BankUtils bank;
     @Inject
     public WalkUtils walk;
+    @Inject
+    public KeyboardUtils keyboard;
     @Inject
     public InterfaceUtils interfaceUtils;
     @Inject
@@ -91,6 +94,14 @@ public abstract class Task extends UtilsScript {
             ItemID.DIVINE_SUPER_COMBAT_POTION2,
             ItemID.DIVINE_SUPER_COMBAT_POTION3,
             ItemID.DIVINE_SUPER_COMBAT_POTION4
+    );
+
+    public Set<Integer> DIGSITE_PENDANTS = Set.of(
+            ItemID.DIGSITE_PENDANT_1,
+            ItemID.DIGSITE_PENDANT_2,
+            ItemID.DIGSITE_PENDANT_3,
+            ItemID.DIGSITE_PENDANT_4,
+            ItemID.DIGSITE_PENDANT_5
     );
 
     public abstract boolean validate();
@@ -196,14 +207,23 @@ public abstract class Task extends UtilsScript {
                 return true;
             }
         }
+        if(!XRuneDragonsPlugin.taskConfig.usePOHdigsite() && !inventory.containsItem(DIGSITE_PENDANTS)) {
+            if(atPOH() && !atDragons) {
+                return true;
+            }
+        }
         if(atDragons) {
             if(!inventory.containsItem(PRAYER_POTS) && client.getBoostedSkillLevel(Skill.PRAYER) <= XRuneDragonsPlugin.taskConfig.prayerMin()) {
                 return true;
+            } else {
+                return false;
             }
         } else {
+            if(!inventory.containsItem(ItemID.TELEPORT_TO_HOUSE)) {
+                return true;
+            }
             return !inventory.containsItem(PRAYER_POTS);
         }
-        return false;
     }
 
     public NPC findRuneDragon() {

@@ -6,14 +6,16 @@ import net.runelite.client.config.*;
 public interface XRuneDragonsConfig
         extends Config {
 
-    @ConfigSection(keyName = "delayConfig", name = "Sleep Delay Configuration", description = "Configure how the bot handles sleep delays", position = 0)
+    @ConfigSection(keyName = "delayConfig", name = "Sleep Delay Configuration", description = "Configure how the bot handles sleep delays", position = 0, hidden = true)
     String delayConfig = "delayConfig";
-    @ConfigSection(keyName = "tickConfig", name = "Tick Delay Configuration", description = "Configure how the bot handles tick delays", position = 1)
+    @ConfigSection(keyName = "tickConfig", name = "Tick Delay Configuration", description = "Configure how the bot handles tick delays", position = 1, hidden = true)
     String tickConfig = "tickConfig";
     @ConfigSection(keyName = "logicConfig", name = "Logic Configuration", description = "", position = 3)
     String logicConfig = "logicConfig";
     @ConfigSection(keyName = "potionConfig", name = "Potions & Food Configuration", description = "", position = 4)
     String potionConfig = "potionConfig";
+    @ConfigSection(keyName = "damageConfig", name = "Damage Configuration", description = "", position = 5)
+    String damageConfig = "damageConfig";
 
     @ConfigItem(keyName = "key", name = "License Key", description = "", position = 0)
     default String key() {
@@ -83,8 +85,8 @@ public interface XRuneDragonsConfig
         return true;
     }
 
-    @ConfigItem(keyName = "Retaliate", name = "Retaliate", description = "", position = 62, section = "logicConfig")
-    default boolean Retaliate() {
+    @ConfigItem(keyName = "usePOHdigsite", name = "Use POH digsite", description = "Enable to use POH digsite instead of necklace", position = 61, section = "logicConfig")
+    default boolean usePOHdigsite() {
         return true;
     }
 
@@ -136,6 +138,21 @@ public interface XRuneDragonsConfig
         return 70;
     }
 
+    @ConfigItem(keyName = "useVengeance", name = "Use Vengeance", description = "Enable to use Vengeance on purple hitsplat.", position = 85, section = "damageConfig")
+    default boolean useVengeance() {
+        return false;
+    }
+
+    @ConfigItem(keyName = "useSpec", name = "Use Spec Weapon", description = "Enable to use Spec Weapon", position = 90, section = "damageConfig")
+    default boolean useSpec() {
+        return false;
+    }
+
+    @ConfigItem(keyName = "specId", name = "Spec Weapon ID", description = "Spec weapon ID to use.", position = 91, section = "damageConfig")
+    default int specId() {
+        return 13652;
+    }
+
     @ConfigItem(
             keyName = "startButton",
             name = "Start/Stop",
@@ -146,4 +163,3 @@ public interface XRuneDragonsConfig
         return new Button();
     }
 }
-
