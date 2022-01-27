@@ -33,7 +33,10 @@ public class WithdrawTask extends Task {
             if (!inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID()) || !inventory.containsItemAmount(XRuneDragonsPlugin.taskConfig.foodID(), XRuneDragonsPlugin.taskConfig.foodAmount(), false, true)) {
                 return true;
             }
-            return !inventory.containsItem(DIGSITE_PENDANTS) && !XRuneDragonsPlugin.taskConfig.usePOHdigsite();
+            if(!inventory.containsItem(DIGSITE_PENDANTS) && !XRuneDragonsPlugin.taskConfig.usePOHdigsite()) {
+                return true;
+            }
+            return false;
         }
         return false;
     }

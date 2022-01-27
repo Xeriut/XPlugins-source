@@ -6,9 +6,9 @@ import net.runelite.client.config.*;
 public interface XRuneDragonsConfig
         extends Config {
 
-    @ConfigSection(keyName = "delayConfig", name = "Sleep Delay Configuration", description = "Configure how the bot handles sleep delays", position = 0, hidden = true)
+    @ConfigSection(keyName = "delayConfig", name = "Sleep Delay Configuration", description = "Configure how the bot handles sleep delays", position = 0, closedByDefault = true)
     String delayConfig = "delayConfig";
-    @ConfigSection(keyName = "tickConfig", name = "Tick Delay Configuration", description = "Configure how the bot handles tick delays", position = 1, hidden = true)
+    @ConfigSection(keyName = "tickConfig", name = "Tick Delay Configuration", description = "Configure how the bot handles tick delays", position = 1, closedByDefault = true)
     String tickConfig = "tickConfig";
     @ConfigSection(keyName = "logicConfig", name = "Logic Configuration", description = "", position = 3)
     String logicConfig = "logicConfig";
@@ -16,11 +16,6 @@ public interface XRuneDragonsConfig
     String potionConfig = "potionConfig";
     @ConfigSection(keyName = "damageConfig", name = "Damage Configuration", description = "", position = 5)
     String damageConfig = "damageConfig";
-
-    @ConfigItem(keyName = "key", name = "License Key", description = "", position = 0)
-    default String key() {
-        return "";
-    }
 
     @Range(min = 0, max = 550)
     @ConfigItem(keyName = "sleepMin", name = "Sleep Min", description = "", position = 2, section = "delayConfig")
