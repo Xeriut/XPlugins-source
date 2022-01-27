@@ -3,7 +3,6 @@ package net.runelite.client.plugins.xrunedragons.tasks;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.plugins.iutils.LegacyMenuEntry;
@@ -16,13 +15,13 @@ public class EquipTask extends Task {
     @Override
     public boolean validate() {
         Item mainWeapon = getWeapon(EquipmentInventorySlot.WEAPON.getSlotIdx());
-        if(mainWeapon != null) {
-            if(atDragons()) {
-                if(XRuneDragonsPlugin.currentNPC == (NPC) XRuneDragonsPlugin.localPlayer.getInteracting()) {
-                    if (client.getVar(VarPlayer.SPECIAL_ATTACK_PERCENT) >= XRuneDragonsPlugin.taskConfig.specTreshhold()) {
-                        if(getNpcHealth(XRuneDragonsPlugin.currentNPC, 330) >= XRuneDragonsPlugin.taskConfig.specHp()) {
-                            if(mainWeapon.getId() != XRuneDragonsPlugin.taskConfig.specId()) {
-                                if(inventory.getEmptySlots() >= 2) {
+        if (mainWeapon != null) {
+            if (atDragons()) {
+                if (XRuneDragonsPlugin.currentNPC == XRuneDragonsPlugin.localPlayer.getInteracting()) {
+                    if (client.getVar(VarPlayer.SPECIAL_ATTACK_PERCENT) >= XRuneDragonsPlugin.taskConfig.specTreshhold() * 10) {
+                        if (getNpcHealth(XRuneDragonsPlugin.currentNPC, 330) >= XRuneDragonsPlugin.taskConfig.specHp()) {
+                            if (mainWeapon.getId() != XRuneDragonsPlugin.taskConfig.specId()) {
+                                if (inventory.getEmptySlots() >= 1) {
                                     return true;
                                 }
                             }
@@ -30,9 +29,7 @@ public class EquipTask extends Task {
                     }
                 }
                 if (client.getVar(VarPlayer.SPECIAL_ATTACK_PERCENT) < XRuneDragonsPlugin.taskConfig.specTreshhold() * 10) {
-                    if (mainWeapon.getId() == XRuneDragonsPlugin.taskConfig.specId()) {
-                        return true;
-                    }
+                    return mainWeapon.getId() == XRuneDragonsPlugin.taskConfig.specId();
                 }
             }
         }
@@ -41,21 +38,21 @@ public class EquipTask extends Task {
 
     @Override
     public String getTaskDescription() {
-        return "Equiping weapon";
+        return "Equipping weapon";
     }
 
     @Override
     public void onGameTick(GameTick event) {
         Item mainWeapon = getWeapon(EquipmentInventorySlot.WEAPON.getSlotIdx());
         started = true;
-        if(mainWeapon != null) {
-            if (XRuneDragonsPlugin.currentNPC == (NPC) XRuneDragonsPlugin.localPlayer.getInteracting()) {
+        if (mainWeapon != null) {
+            if (XRuneDragonsPlugin.currentNPC == XRuneDragonsPlugin.localPlayer.getInteracting()) {
                 if (client.getVar(VarPlayer.SPECIAL_ATTACK_PERCENT) >= XRuneDragonsPlugin.taskConfig.specTreshhold() * 10) {
                     if (getNpcHealth(XRuneDragonsPlugin.currentNPC, 330) >= XRuneDragonsPlugin.taskConfig.specHp()) {
                         if (mainWeapon.getId() != XRuneDragonsPlugin.taskConfig.specId()) {
                             WidgetItem weapon = inventory.getWidgetItem(XRuneDragonsPlugin.taskConfig.specId());
                             if (weapon != null) {
-                                entry = new LegacyMenuEntry("", "", weapon.getId(), MenuAction.ITEM_SECOND_OPTION.getId(), 1, WidgetInfo.INVENTORY.getId(), false);
+                                entry = new LegacyMenuEntry("", "", weapon.getId(), MenuAction.ITEM_SECOND_OPTION.getId(), weapon.getIndex(), WidgetInfo.INVENTORY.getId(), false);
                                 utils.doActionMsTime(entry, weapon.getCanvasBounds(), sleepDelay());
                             }
                             finished = true;

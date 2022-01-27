@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ItemID;
 import net.runelite.api.Skill;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.plugins.xrunedragons.Task;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
@@ -14,17 +13,14 @@ public class TeleHomeTask extends Task {
 
     @Override
     public boolean validate() {
-        if(inventory.containsItem(ItemID.TELEPORT_TO_HOUSE)) {
+        if (inventory.containsItem(ItemID.TELEPORT_TO_HOUSE)) {
             if (!atPOH()) {
                 if (atDragons()) {
                     if (shouldRestock(true)) {
                         log.info("We teleport home from dragons.");
                         return true;
                     }
-                    if (client.getBoostedSkillLevel(Skill.HITPOINTS) <= XRuneDragonsPlugin.taskConfig.eatMin() && !inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID())) {
-                        return true;
-                    }
-                    return false;
+                    return client.getBoostedSkillLevel(Skill.HITPOINTS) <= XRuneDragonsPlugin.taskConfig.eatMin() && !inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID());
                 }
                 if (atEdge()) {
                     if (!shouldRestock(false)) {
@@ -34,9 +30,7 @@ public class TeleHomeTask extends Task {
                 if (!atEdge() && shouldRestock(false)) {
                     return true;
                 }
-                if (!atDragons() && !atEdge() && !atLith()) {
-                    return true;
-                }
+                return !atDragons() && !atEdge() && !atLith();
             }
         }
         return false;

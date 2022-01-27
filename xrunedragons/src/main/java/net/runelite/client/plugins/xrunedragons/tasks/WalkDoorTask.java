@@ -11,10 +11,7 @@ public class WalkDoorTask extends Task {
 
     @Override
     public boolean validate() {
-        if (XRuneDragonsPlugin.localPlayer.getWorldArea().intersectsWith(lithkrenBehindDoor)) {
-            return true;
-        }
-        return false;
+        return XRuneDragonsPlugin.localPlayer.getWorldArea().intersectsWith(lithkrenBehindDoor);
     }
 
     @Override

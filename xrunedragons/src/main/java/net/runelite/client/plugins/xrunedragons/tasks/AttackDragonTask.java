@@ -15,7 +15,7 @@ public class AttackDragonTask extends Task {
     public boolean validate() {
         if (atDragons()) {
             if (XRuneDragonsPlugin.localPlayer.getInteracting() != null) {
-                if(XRuneDragonsPlugin.currentNPC != (NPC) XRuneDragonsPlugin.localPlayer.getInteracting()) {
+                if (XRuneDragonsPlugin.currentNPC != XRuneDragonsPlugin.localPlayer.getInteracting()) {
                     XRuneDragonsPlugin.currentNPC = (NPC) XRuneDragonsPlugin.localPlayer.getInteracting();
                     if (XRuneDragonsPlugin.currentNPC != null) {
                         return true;

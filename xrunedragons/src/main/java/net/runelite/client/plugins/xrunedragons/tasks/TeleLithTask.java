@@ -8,13 +8,9 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.plugins.iutils.LegacyMenuEntry;
-import net.runelite.client.plugins.iutils.ui.Chatbox;
-import net.runelite.client.plugins.iutils.util.Util;
 import net.runelite.client.plugins.xrunedragons.Task;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
 
-import java.awt.event.KeyEvent;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
@@ -24,17 +20,13 @@ public class TeleLithTask extends Task {
 
     @Override
     public boolean validate() {
-        if(!atLith()) {
-            if(XRuneDragonsPlugin.taskConfig.usePOHdigsite()) {
+        if (!atLith()) {
+            if (XRuneDragonsPlugin.taskConfig.usePOHdigsite()) {
                 if (atPOH()) {
-                    if(!shouldRestock(false)) {
-                        return true;
-                    }
+                    return !shouldRestock(false);
                 }
             } else {
-                if(!shouldRestock(false) && inventory.containsItem(DIGSITE_PENDANTS)) {
-                    return true;
-                }
+                return !shouldRestock(false) && inventory.containsItem(DIGSITE_PENDANTS);
             }
         }
         return false;
@@ -47,7 +39,7 @@ public class TeleLithTask extends Task {
 
     @Override
     public void onGameTick(GameTick event) {
-        if(XRuneDragonsPlugin.taskConfig.usePOHdigsite()) {
+        if (XRuneDragonsPlugin.taskConfig.usePOHdigsite()) {
             DecorativeObject decObstacle = object.findNearestDecorObject(33418);
             if (decObstacle != null) {
                 started = true;
@@ -58,7 +50,7 @@ public class TeleLithTask extends Task {
         } else {
             Collection<WidgetItem> items = inventory.getAllItems();
             Optional<WidgetItem> teleItem = items.stream().filter(e -> DIGSITE_PENDANTS.stream().anyMatch(x -> x == e.getId())).min(Comparator.comparing(WidgetItem::getId));
-            if(teleItem.isPresent()) {
+            if (teleItem.isPresent()) {
                 started = true;
                 entry = new LegacyMenuEntry("", "", teleItem.get().getId(), MenuAction.ITEM_FOURTH_OPTION.getId(), teleItem.get().getIndex(),
                         WidgetInfo.INVENTORY.getId(), false);

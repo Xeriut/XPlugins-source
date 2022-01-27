@@ -25,14 +25,12 @@
  */
 package net.runelite.client.plugins.xrunedragons;
 
-import com.google.gson.JsonObject;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
-import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.callback.ClientThread;
@@ -45,24 +43,14 @@ import net.runelite.client.plugins.iutils.*;
 import net.runelite.client.plugins.iutils.api.Spells;
 import net.runelite.client.plugins.xrunedragons.tasks.*;
 import net.runelite.client.ui.overlay.OverlayManager;
-import okhttp3.*;
 import org.pf4j.Extension;
 
 import javax.inject.Inject;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Extension
@@ -76,6 +64,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class XRuneDragonsPlugin extends Plugin {
 
+    public static XRuneDragonsConfig taskConfig;
+    public static TaskSet tasks = new TaskSet();
+    public static boolean running;
+    public static LocalPoint beforeLoc = new LocalPoint(0, 0);
+    public static String status = "Starting...";
+    public static List<Integer> inventorySetup = new ArrayList<>();
+    public static List<TileItem> itemsToLoot = new ArrayList<>();
+    public static NPC currentNPC;
+    public static WorldPoint deathLocation;
+    public static Player localPlayer;
+    public static boolean deposited = false;
+    public static LegacyMenuEntry targetMenu;
+    public static long sleepLength;
+    public static int tickLength;
+    public static int timeout;
+    public static int mainWeaponId = 0;
+    public static int shieldId = 0;
+    static int killCount;
+    static int killsPerH;
+    static int totalLoot;
+    static int lootPerH;
+    Instant botTimer;
     @Inject
     private Client client;
     @Inject
@@ -96,59 +106,18 @@ public class XRuneDragonsPlugin extends Plugin {
     private XRuneDragonsConfig config;
     @Inject
     private InterfaceUtils interfaceUtils;
-
-    public static XRuneDragonsConfig taskConfig;
-
     @Inject
     private OverlayManager overlayManager;
-
     @Inject
     private XRuneDragonsOverlay overlay;
-
     @Inject
     private ConfigManager configManager;
-
-    private final OkHttpClient httpClient = new OkHttpClient();
-
-    public static final MediaType JSON
-            = MediaType.get("application/json; charset=utf-8");
-
-    private static String OS = System.getProperty("os.name").toLowerCase();
-
-    private String machineId = null;
-
-    public static TaskSet tasks = new TaskSet();
-
-    Instant botTimer;
-
-    public static boolean running;
-    public static LocalPoint beforeLoc = new LocalPoint(0, 0);
-    public static String status = "Starting...";
     private Task task;
-
-    public static List<Integer> inventorySetup = new ArrayList<>();
-    public static List<TileItem> itemsToLoot = new ArrayList<>();
-
-    public static NPC currentNPC;
-    public static WorldPoint deathLocation;
-    public static Player localPlayer;
-
-    public static boolean deposited = false;
-
-    public static LegacyMenuEntry targetMenu;
-
-    public static long sleepLength;
-    public static int tickLength;
-    public static int timeout;
     private int taskIteration;
 
-    static int killCount;
-    static int killsPerH;
-    static int totalLoot;
-    static int lootPerH;
-
-    public static int mainWeaponId = 0;
-    public static int shieldId = 0;
+    public static void updateLoot(int amount) {
+        totalLoot += amount;
+    }
 
     @Provides
     XRuneDragonsConfig getConfig(ConfigManager configManager) {
@@ -157,13 +126,12 @@ public class XRuneDragonsPlugin extends Plugin {
 
     @Override
     protected void startUp() {
-        utils.sendGameMessage("We start");
+
     }
 
     @Override
     protected void shutDown() {
         resetPlugin();
-        utils.sendGameMessage("We stop");
     }
 
     private void loadTasks() {
@@ -178,9 +146,9 @@ public class XRuneDragonsPlugin extends Plugin {
                 injector.getInstance(EatFoodTask.class),
                 injector.getInstance(DrinkTask.class),
                 injector.getInstance(LootTask.class),
-                injector.getInstance(AttackDragonTask.class),
                 injector.getInstance(SpecTask.class),
                 injector.getInstance(EquipTask.class),
+                injector.getInstance(AttackDragonTask.class),
                 injector.getInstance(InCombatTask.class),
                 injector.getInstance(DrinkPoolTask.class),
                 injector.getInstance(DownStairsTask.class),
@@ -218,50 +186,34 @@ public class XRuneDragonsPlugin extends Plugin {
 
         if (configButtonClicked.getKey().equals("startButton")) {
             if (!running) {
-                getMachineID();
-                int license = checkLicense();
-                switch(license) {
-                    case 200: {
-                        Player player = client.getLocalPlayer();
-                        if (client != null && player != null && client.getGameState() == GameState.LOGGED_IN) {
-                            log.info("starting XRuneDragons");
-                            if(initInventory()) {
-                                task = null;
-                                taskConfig = config;
-                                loadTasks();
-                                running = true;
-                                tickLength = 0;
-                                sleepLength = 0;
-                                timeout = 0;
-                                targetMenu = null;
-                                botTimer = Instant.now();
-                                overlayManager.add(overlay);
-                                beforeLoc = client.getLocalPlayer().getLocalLocation();
-                                killCount = 0;
-                                killsPerH = 0;
-                                totalLoot = 0;
-                                lootPerH = 0;
-                                return;
-                            } else {
-                                resetPlugin();
-                                return;
-                            }
+                Player player = client.getLocalPlayer();
+                if (client != null && player != null && client.getGameState() == GameState.LOGGED_IN) {
+                    log.info("Starting XRuneDragons");
+                    if (initInventory()) {
+                        task = null;
+                        taskConfig = config;
+                        loadTasks();
+                        running = true;
+                        tickLength = 0;
+                        sleepLength = 0;
+                        timeout = 0;
+                        targetMenu = null;
+                        botTimer = Instant.now();
+                        overlayManager.add(overlay);
+                        beforeLoc = client.getLocalPlayer().getLocalLocation();
+                        killCount = 0;
+                        killsPerH = 0;
+                        totalLoot = 0;
+                        lootPerH = 0;
+                        return;
+                    } else {
+                        resetPlugin();
+                        return;
+                    }
 
-                        } else {
-                            log.info("Start logged in");
-                            return;
-                        }
-                    }
-                    case 401: {
-                        utils.sendGameMessage("HWID is not correct");
-                        resetPlugin();
-                        return;
-                    }
-                    case 500: {
-                        utils.sendGameMessage("License is invalid");
-                        resetPlugin();
-                        return;
-                    }
+                } else {
+                    log.info("Start logged in");
+                    return;
                 }
             } else {
                 resetPlugin();
@@ -276,12 +228,12 @@ public class XRuneDragonsPlugin extends Plugin {
         }
         localPlayer = client.getLocalPlayer();
         if (client != null && localPlayer != null && client.getGameState() == GameState.LOGGED_IN) {
-            if(config.useVengeance() && !canVengeance() && task == null) {
+            if (config.useVengeance() && !canVengeance() && task == null) {
                 utils.sendGameMessage("Don't have Vengeance runes in inventory");
                 resetPlugin();
                 return;
-            };
-            if(config.useVengeance() && !canVengeance() && task != null) {
+            }
+            if (config.useVengeance() && !canVengeance() && task != null) {
                 utils.sendGameMessage("Can't cast vengeance. Teleporting and logging out..");
                 WidgetItem teleItem = inventory.getWidgetItem(ItemID.TELEPORT_TO_HOUSE);
                 if (teleItem != null) {
@@ -292,7 +244,7 @@ public class XRuneDragonsPlugin extends Plugin {
                 resetPlugin();
                 interfaceUtils.logout();
                 return;
-            };
+            }
             if (!client.isResized()) {
                 utils.sendGameMessage("Please set game to resizable mode.");
                 resetPlugin();
@@ -308,17 +260,17 @@ public class XRuneDragonsPlugin extends Plugin {
                 timeout--;
                 return;
             }
-            if((task != null && task.isFinished() && task.isStarted()) || taskIteration > 7) {
+            if ((task != null && task.isFinished() && task.isStarted()) || taskIteration > 7) {
                 taskIteration = 0;
                 task.started = false;
                 task.finished = false;
                 task = tasks.getValidTask();
-                if(task.getTaskDescription() != null) {
+                if (task.getTaskDescription() != null) {
                     status = task.getTaskDescription();
                 }
                 task.onGameTick(event);
                 taskIteration++;
-                if(status == "Logout") resetPlugin();
+                if (status == "Logout") resetPlugin();
             } else if (task != null && !task.isFinished() && task.isStarted()) {
                 task.checkFinished(event);
                 taskIteration++;
@@ -326,7 +278,7 @@ public class XRuneDragonsPlugin extends Plugin {
                 status = task.getTaskDescription();
                 task.onGameTick(event);
                 taskIteration++;
-                if(status == "Logout") resetPlugin();
+                if (status == "Logout") resetPlugin();
             } else {
                 taskIteration = 0;
                 task = tasks.getValidTask();
@@ -367,7 +319,7 @@ public class XRuneDragonsPlugin extends Plugin {
 
     @Subscribe
     private void onGameStateChanged(GameStateChanged gameStateChanged) {
-        this.itemsToLoot.clear();
+        itemsToLoot.clear();
         switch (gameStateChanged.getGameState()) {
             case CONNECTION_LOST:
             case LOGGING_IN:
@@ -380,111 +332,12 @@ public class XRuneDragonsPlugin extends Plugin {
     }
 
     @Subscribe
-    public void onHitsplatApplied(HitsplatApplied event)
-    {
-        if (event.getHitsplat().getHitsplatType()==Hitsplat.HitsplatType.HEAL && event.getActor() == currentNPC && config.useVengeance() && canVengeance()){
+    public void onHitsplatApplied(HitsplatApplied event) {
+        if (event.getHitsplat().getHitsplatType() == Hitsplat.HitsplatType.HEAL && event.getActor() == currentNPC && config.useVengeance() && canVengeance()) {
             targetMenu = new LegacyMenuEntry("", "", 1, MenuAction.CC_OP.getId(), -1, WidgetInfo.SPELL_VENGEANCE.getId(), false);
             utils.oneClickCastSpell(Spells.VENGEANCE.getInfo(), targetMenu, new Rectangle(0, 0, 0, 0), 0);
             timeout = 5;
         }
-    }
-
-    private void getMachineID() {
-        if(OS.indexOf("win") >= 0) {
-            machineId = getWindowsDeviceUUID();
-        } else if(OS.indexOf("mac") >= 0) {
-            machineId = getMacUUID();
-        }
-    }
-
-    private String getWindowsDeviceUUID()
-    {
-        try{
-            String command = "wmic csproduct get UUID";
-            StringBuffer output = new StringBuffer();
-
-            Process SerNumProcess = Runtime.getRuntime().exec(command);
-            BufferedReader sNumReader = new BufferedReader(new InputStreamReader(SerNumProcess.getInputStream()));
-
-            String line = "";
-            while ((line = sNumReader.readLine()) != null) {
-                output.append(line + "\n");
-            }
-            String uuid=output.toString().substring(output.indexOf("\n"), output.length()).trim();;
-            log.debug(uuid);
-            return uuid;
-        } catch(Exception ex)
-        {
-            log.error("OutPut Error "+ex.getMessage());
-        }
-        return null;
-    }
-
-    public String getMacUUID()
-    {
-        try{
-            String command = "system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }'";
-
-            StringBuffer output = new StringBuffer();
-
-
-            Process SerNumProcess = Runtime.getRuntime().exec(command);
-
-            BufferedReader sNumReader = new BufferedReader(new InputStreamReader(SerNumProcess.getInputStream()));
-
-            String line = "";
-
-            while ((line = sNumReader.readLine()) != null) {
-                output.append(line + "\n");
-            }
-
-            String uuid=output.toString().substring(output.indexOf("UUID: "), output.length()).replace("UUID: ", "");
-
-            SerNumProcess.waitFor();
-
-            uuid = uuid.split("\n")[0];
-
-            sNumReader.close();
-
-            log.debug(uuid);
-
-            return uuid;
-        } catch(Exception ex)
-        {
-            log.error("OutPut Error "+ex.getMessage());
-        }
-
-        return null;
-    }
-
-    private int checkLicense() {
-        if(config.key() != "" && machineId != null) {
-            JsonObject json = new JsonObject();
-            json.addProperty("key", config.key());
-            json.addProperty("machineId", machineId);
-            if(OS.indexOf("win") >= 0) {
-                json.addProperty("machineOs", "win");
-            } else if(OS.indexOf("mac") >= 0) {
-                json.addProperty("machineOs", "mac");
-            }
-
-            RequestBody body = RequestBody.create(json.toString(), JSON);
-
-            Request request = new Request.Builder()
-                    .url("https://xplugins-license.herokuapp.com/auth/verify")
-                    .post(body)
-                    .build();
-
-            try (Response response = httpClient.newCall(request).execute()) {
-                if (!response.isSuccessful()) return 500;
-
-                return response.code();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return 500;
-            }
-        }
-        return 500;
     }
 
     private boolean lootableItem(TileItem item) {
@@ -495,7 +348,7 @@ public class XRuneDragonsPlugin extends Plugin {
 
     private boolean initInventory() {
         inventorySetup.clear();
-        if(config.useVengeance()) {
+        if (config.useVengeance()) {
             inventorySetup.add(ItemID.RUNE_POUCH);
         }
         if (config.superantifire()) {
@@ -513,7 +366,7 @@ public class XRuneDragonsPlugin extends Plugin {
         if (!config.usePOHdigsite()) {
             inventorySetup.add(ItemID.DIGSITE_PENDANT_5);
         }
-        if(config.useSpec()) {
+        if (config.useSpec()) {
             inventorySetup.add(config.specId());
         }
         inventorySetup.add(ItemID.PRAYER_POTION4);
@@ -536,14 +389,10 @@ public class XRuneDragonsPlugin extends Plugin {
         return 0;
     }
 
-    public static void updateLoot(int amount) {
-        totalLoot += amount;
-    }
-
     public boolean canVengeance() {
         assert client.isClientThread();
-            return client.getBoostedSkillLevel(Skill.MAGIC) >= 94 &&
-                    client.getVarbitValue(4070) == 2 &&
-                    (inventory.runePouchQuanitity(ItemID.EARTH_RUNE) >= 10 && inventory.runePouchQuanitity(ItemID.ASTRAL_RUNE) >= 4 && inventory.runePouchQuanitity(ItemID.DEATH_RUNE) >= 2 && inventory.containsItem(ItemID.RUNE_POUCH));
+        return client.getBoostedSkillLevel(Skill.MAGIC) >= 94 &&
+                client.getVarbitValue(4070) == 2 &&
+                (inventory.runePouchQuanitity(ItemID.EARTH_RUNE) >= 10 && inventory.runePouchQuanitity(ItemID.ASTRAL_RUNE) >= 4 && inventory.runePouchQuanitity(ItemID.DEATH_RUNE) >= 2 && inventory.containsItem(ItemID.RUNE_POUCH));
     }
 }

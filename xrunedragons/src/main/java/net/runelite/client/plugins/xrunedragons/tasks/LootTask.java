@@ -2,11 +2,9 @@ package net.runelite.client.plugins.xrunedragons.tasks;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.MenuAction;
-import net.runelite.api.NPC;
 import net.runelite.api.TileItem;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.plugins.iutils.LegacyMenuEntry;
-import net.runelite.client.plugins.iutils.api.GrandExchangePrices;
 import net.runelite.client.plugins.xrunedragons.Task;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
 
@@ -17,10 +15,7 @@ public class LootTask extends Task {
 
     @Override
     public boolean validate() {
-        if (atDragons() && !XRuneDragonsPlugin.itemsToLoot.isEmpty() && !inventory.isFull()) {
-            return true;
-        }
-        return false;
+        return atDragons() && !XRuneDragonsPlugin.itemsToLoot.isEmpty() && !inventory.isFull();
     }
 
     @Override
@@ -60,11 +55,11 @@ public class LootTask extends Task {
             menu.setEntry(entry);
             mouse.delayMouseClick(lootItem.getTile().getItemLayer().getCanvasTilePoly().getBounds(), sleepDelay());
             log.info("Loot Item price getting");
-            int itemPrice = utils.getItemPrice(lootItem.getId(), true)  * lootItem.getQuantity();
-            if(itemPrice > 0) {
-               log.info("Loot Item price not null");
-               XRuneDragonsPlugin.updateLoot(itemPrice);
-           }
+            int itemPrice = utils.getItemPrice(lootItem.getId(), true) * lootItem.getQuantity();
+            if (itemPrice > 0) {
+                log.info("Loot Item price not null");
+                XRuneDragonsPlugin.updateLoot(itemPrice);
+            }
         }
         XRuneDragonsPlugin.timeout = tickDelay();
     }

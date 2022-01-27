@@ -3,7 +3,6 @@ package net.runelite.client.plugins.xrunedragons.tasks;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.iutils.LegacyMenuEntry;
 import net.runelite.client.plugins.xrunedragons.Task;
@@ -15,12 +14,10 @@ public class SpecTask extends Task {
     @Override
     public boolean validate() {
         Item mainWeapon = getWeapon(EquipmentInventorySlot.WEAPON.getSlotIdx());
-        if(mainWeapon != null) {
+        if (mainWeapon != null) {
             if (atDragons() && mainWeapon.getId() == XRuneDragonsPlugin.taskConfig.specId() && client.getVar(VarPlayer.SPECIAL_ATTACK_PERCENT) >= XRuneDragonsPlugin.taskConfig.specTreshhold() * 10) {
-                if(XRuneDragonsPlugin.currentNPC == (NPC) XRuneDragonsPlugin.localPlayer.getInteracting()) {
-                    if(getNpcHealth(XRuneDragonsPlugin.currentNPC, 330) >= XRuneDragonsPlugin.taskConfig.specHp() && client.getVar(VarPlayer.SPECIAL_ATTACK_ENABLED) == 0) {
-                        return true;
-                    }
+                if (XRuneDragonsPlugin.currentNPC == XRuneDragonsPlugin.localPlayer.getInteracting()) {
+                    return getNpcHealth(XRuneDragonsPlugin.currentNPC, 330) >= XRuneDragonsPlugin.taskConfig.specHp() && client.getVar(VarPlayer.SPECIAL_ATTACK_ENABLED) == 0;
                 }
             }
         }

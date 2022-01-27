@@ -1,7 +1,9 @@
 package net.runelite.client.plugins.xrunedragons.tasks;
 
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.*;
+import net.runelite.api.GameObject;
+import net.runelite.api.MenuAction;
+import net.runelite.api.Skill;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.plugins.xrunedragons.Task;
 import net.runelite.client.plugins.xrunedragons.XRuneDragonsPlugin;
@@ -15,9 +17,7 @@ public class DrinkPoolTask extends Task {
             if (client.getBoostedSkillLevel(Skill.PRAYER) < client.getRealSkillLevel(Skill.PRAYER) && XRuneDragonsPlugin.taskConfig.usePOHpool()) {
                 return true;
             }
-            if (client.getBoostedSkillLevel(Skill.HITPOINTS) < client.getRealSkillLevel(Skill.HITPOINTS) && XRuneDragonsPlugin.taskConfig.usePOHpool()) {
-                return true;
-            }
+            return client.getBoostedSkillLevel(Skill.HITPOINTS) < client.getRealSkillLevel(Skill.HITPOINTS) && XRuneDragonsPlugin.taskConfig.usePOHpool();
         }
         return false;
     }

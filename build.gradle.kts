@@ -6,11 +6,15 @@ buildscript {
     repositories {
         gradlePluginPortal()
     }
+    dependencies {
+        classpath("com.guardsquare:proguard-gradle:7.1.0");
+    }
 }
 
 plugins {
     checkstyle
     java
+    id("com.anatawa12.tools.decompileCrasher") version "1.2.3"
 }
 
 project.extra["GithubUrl"] = "https://github.com/Xeriut/XPlugins-source"
@@ -88,6 +92,7 @@ subprojects {
         compileOnly(group = "org.projectlombok", name = "lombok", version = "1.18.16")
         compileOnly(group = "com.squareup.okhttp3", name = "okhttp", version = "4.9.1")
         compileOnly(group = "org.pf4j", name = "pf4j", version = "3.6.0")
+        compileOnly(group = "org.pf4j", name = "pf4j-update", version = "2.3.0")
         compileOnly(group = "io.reactivex.rxjava3", name = "rxjava", version = "3.1.1")
 
         compileOnly(group = "com.openosrs.externals", name = "iutils", version = "4.7.7")

@@ -12,14 +12,12 @@ public class EatFoodTask extends Task {
 
     @Override
     public boolean validate() {
-        if(inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID())) {
+        if (inventory.containsItem(XRuneDragonsPlugin.taskConfig.foodID())) {
             if (atDragons()) {
                 if (client.getBoostedSkillLevel(Skill.HITPOINTS) <= XRuneDragonsPlugin.taskConfig.eatMin()) {
                     return true;
                 }
-                if (inventory.isFull() && !XRuneDragonsPlugin.itemsToLoot.isEmpty()) {
-                    return true;
-                }
+                return inventory.isFull() && !XRuneDragonsPlugin.itemsToLoot.isEmpty();
             }
             return false;
         }
