@@ -28,6 +28,7 @@ rootProject.name = "Xplugins"
 include("xrunedragons")
 include(":xoneclickspell")
 include(":xreplant")
+include(":xjadswapper")
 
 for (project in rootProject.children) {
     project.apply {
