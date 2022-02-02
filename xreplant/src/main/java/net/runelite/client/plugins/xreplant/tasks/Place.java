@@ -25,15 +25,22 @@ public class Place extends Task {
     public void routine(GameTick event) throws Exception {
         log.info("Placing task routine");
         int sapling = getSaplingID(XReplantPlugin.currentPatch.getType());
-        WidgetItem saplingWidget = inventory.getWidgetItem(sapling);
-        GameObject closestPatchObject = object.findNearestGameObject(XReplantPlugin.currentPatch.getPatchID());
-        if (saplingWidget != null && closestPatchObject != null) {
-            targetMenu = new LegacyMenuEntry("", "", closestPatchObject.getId(), ITEM_USE_ON_GAME_OBJECT.getId(), closestPatchObject.getSceneMinLocation().getX(), closestPatchObject.getSceneMinLocation().getY(), false);
-            utils.doModifiedActionMsTime(targetMenu, saplingWidget.getId(), saplingWidget.getIndex(), ITEM_USE_ON_GAME_OBJECT.getId(), closestPatchObject.getConvexHull().getBounds(), sleepDelay());
-            handled = true;
-            return;
+        if(sapling != 0) {
+            WidgetItem saplingWidget = inventory.getWidgetItem(sapling);
+            GameObject closestPatchObject = object.findNearestGameObject(XReplantPlugin.currentPatch.getPatchID());
+            if (saplingWidget != null && closestPatchObject != null) {
+                targetMenu = new LegacyMenuEntry("", "", closestPatchObject.getId(), ITEM_USE_ON_GAME_OBJECT.getId(), closestPatchObject.getSceneMinLocation().getX(), closestPatchObject.getSceneMinLocation().getY(), false);
+                utils.doModifiedActionMsTime(targetMenu, saplingWidget.getId(), saplingWidget.getIndex(), ITEM_USE_ON_GAME_OBJECT.getId(), closestPatchObject.getConvexHull().getBounds(), sleepDelay());
+                handled = true;
+                return;
+            } else {
+                throw new Exception("Not placed yet.");
+            }
         } else {
-            throw new Exception("Not placed yet.");
+            XReplantPlugin.currentState = PatchState.IDLE;
+            started = false;
+            finished = true;
+            return;
         }
     }
 

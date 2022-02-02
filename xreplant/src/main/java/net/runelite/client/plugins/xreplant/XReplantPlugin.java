@@ -244,6 +244,11 @@ public class XReplantPlugin extends Plugin {
             inventorySetup.add(config.treeSapling().getItemID());
         }
 
+        if(type == Patch.PatchType.FRUIT_TREE) {
+            // Tree items setup
+            inventorySetup.add(config.fruitTreeSapling().getItemID());
+        }
+
         log.info("required inventory items: {}", inventorySetup.toString());
 
         return inventorySetup;

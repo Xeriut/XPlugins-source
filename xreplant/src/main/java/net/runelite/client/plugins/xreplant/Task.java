@@ -110,8 +110,11 @@ public abstract class Task extends UtilsScript {
             case TREE: {
                 return XReplantPlugin.taskConfig.treeSapling().getItemID();
             }
+            case FRUIT_TREE: {
+                return XReplantPlugin.taskConfig.fruitTreeSapling().getItemID();
+            }
             default: {
-                return XReplantPlugin.taskConfig.treeSapling().getItemID();
+                return 0;
             }
         }
     }

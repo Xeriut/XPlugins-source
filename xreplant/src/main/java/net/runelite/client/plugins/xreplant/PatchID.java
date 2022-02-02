@@ -15,6 +15,16 @@ public enum PatchID {
     FARMING_GUILD_TREE(33732),
 
     /**
+     * Fruit tree patch IDs
+     */
+    CATHERBY_FRUIT_TREE(7965),
+    TREE_GNOME_VILLAGE_FRUIT_TREE(7963),
+    BRIMHAVEN_FRUIT_TREE(7964),
+    GNOME_STRONGHOLD_FRUIT_TREE(7962),
+    FARMING_GUILD_FRUIT_TREE(34007),
+    PRIFF_FRUIT_TREE(26579),
+
+    /**
      * Menu action triggered when the id is not defined in this class.
      */
     UNKNOWN(-1);

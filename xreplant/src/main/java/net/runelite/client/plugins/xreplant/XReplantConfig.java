@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.xreplant;
 
 import net.runelite.client.config.*;
+import net.runelite.client.plugins.xreplant.patchtypes.FruitTree;
 import net.runelite.client.plugins.xreplant.patchtypes.Tree;
 
 @ConfigGroup(value = "xautoreplant")
@@ -13,6 +14,8 @@ public interface XReplantConfig
     String tickConfig = "tickConfig";
     @ConfigSection(keyName = "treeConfig", name = "Tree Configuration", description = "", position = 2)
     String treeConfig = "treeConfig";
+    @ConfigSection(keyName = "fruitTreeConfig", name = "Fruit Tree Configuration", description = "", position = 3)
+    String fruitTreeConfig = "fruitTreeConfig";
 
     @Range(min = 0, max = 550)
     @ConfigItem(keyName = "sleepMin", name = "Sleep Min", description = "", position = 2, section = "delayConfig")
@@ -72,9 +75,14 @@ public interface XReplantConfig
         return false;
     }
 
-    @ConfigItem(keyName = "treeSapling", name = "Tree patch sapling", description = "Choose which sapling to use on tree patches", position = 1, section = "treeConfig")
+    @ConfigItem(keyName = "treeSapling", name = "Tree sapling", description = "Choose which sapling to use on tree patches", position = 1, section = "treeConfig")
     default Tree treeSapling() {
         return Tree.MAGIC;
+    }
+
+    @ConfigItem(keyName = "fruitTreeSapling", name = "Fruit tree sapling", description = "Choose which sapling to use on fruit tree patches", position = 2, section = "fruitTreeConfig")
+    default FruitTree fruitTreeSapling() {
+        return FruitTree.DRAGONFRUIT;
     }
 
 }
